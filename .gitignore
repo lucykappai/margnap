@@ -1,3 +1,7 @@
+# learning notebooks etc
+my_awesome_model/
+hf_notebook.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
