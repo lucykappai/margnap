@@ -3,6 +3,8 @@
 
 # Results
 
+Results below are show pre- and post-threshold tuning for improved FPR/FNR balance; for more detail, see below.
+
 | Dataset | Accuracy (pre → post) | FPR (pre → post) | FNR (pre → post) |
 |---|---|---|---|
 | Validation | 88.70% → 88.16% | 18.16% → 0.96% | 4.44% → 22.72% |
