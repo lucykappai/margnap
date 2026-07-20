@@ -34,13 +34,13 @@ As such, I chose to refine the probability threshold $p_{\text{AI}}$ to achieve 
 
 Testing the same threshold on the CNN-Llama dataset, I see an accuracy of 99.05%, FPR of 1.10%, and FNR of 0.80%. The model is able to discriminate well between AI and human-written content (the ability to separate the classes at all), but the strong accuracy boost with the shift in threshold points to a calibration mismatch - there are still many human-written samples with a high $p_\text{AI}$, such that these probabilities can't be evaluated as literall "% chance AI", and are arbitrary scores, with a threshold set where classes separate more clearly. This is best demonstrated in the figure below, showing the $p_\text{AI}$ score for samples, split by whether they were actually human-written (in red) or AI-written (in blue).
 
-![figure1](plots/cnn_scores_ai.png)
+![figure1](https://github.com/lucykappai/margnap/blob/main/plots/cnn_scores_ai.png?raw=true)
 
 On the test set of the original dataset, I achieve an accuracy of 88.44%, FPR of 1.72%, and an FNR of 21.40%. This FNR, whilst high, is much preferable to the case of falsely labelling human-written content as AI generated; punishing real work has much worse risk of doing harm than allowing some faults to pass through the cracks.
 
 Performance is (expectedly) worse on the adversarial characters and paraphrasing sets, where accuracy falls by 10-20%, and the FNR rises to 36.00% and 40.24% respectively; in the paraphrase set, the FPR also spikes up to 12.36% -- this is the only adversarial set where the FPR rises so sharply. The OOD-domain dataset shows a different kind of failure to what was seen in the CNN case; we see that the model cannot discriminate as well in these adversarial datasets as the CNN case - there is much more muddling of AI and human-written content which is labelled as AI. As such, no threshold can properly recover performance. 
 
-![figure2](plots/ood_domain_scores_ai.png)
+![figure2](https://github.com/lucykappai/margnap/blob/main/plots/ood_domain_scores_ai.png)
 
 The worst performance comes in the case of the out-of-domain language dataset, where accuracy falls to a measly 59.10%.69%. Here, the FPR is a flat 0.00%, and the FNR reaches a poor 81.80% -- the model is coming to the conclusion that any non-English text is by default human generated, an obvious gap in the training data. This prompts an opportunity for better tuning using a more linguistically diverse training set.
 
