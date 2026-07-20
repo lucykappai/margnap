@@ -3,6 +3,8 @@ my_awesome_model/
 my_awesome_classifier/
 my_awesome_second_classifier/
 my_awesome_third_classifier/
+margnap_classifier/
+margnap_classifier_full/
 hf_notebook.ipynb
 HANDOVER.md
 
