@@ -3,7 +3,7 @@
 
 # Results
 
-Results below are show pre- and post-threshold tuning for improved FPR/FNR balance; for more detail, see below.
+Results below are shown pre- and post-threshold tuning for improved FPR/FNR balance; for more detail, see below.
 
 | Dataset | Accuracy (pre → post) | FPR (pre → post) | FNR (pre → post) |
 |---|---|---|---|
@@ -20,7 +20,7 @@ Results below are show pre- and post-threshold tuning for improved FPR/FNR balan
 
 # Process and Findings 
 
-To build up my ML skills, I chose to train a simple classification model on detecting AI vs human text across multiple genres of writing and multiple families of LLM. To get started quickly, I checked Hugging Face for simple 'AI vs. Human' text datasets. Initially wary of a lack of dataset cards and README's, I decided to quickly go ahead with a large dataset with multiple different types of LLM content: [`ahmadreza13/human-vs-Ai-generated-dataset`](https://huggingface.co/datasets/ahmadreza13/human-vs-Ai-generated-dataset). I immediately noticed that (i) the data was imbalanced, with ~58% human written and 42% AI-written text (with further heavy weighting toward GPT4, and less toward e.g. Claude Opus 3 or Gemini 1.5 Pro), and (ii) the entirety of the human-written content was from Wikipedia, as this will have obvious stylistic differences from both AI-written and other human-written text. Furthermore, with no detailed data sourcing, there was no guarantee the Wikipedia content was not in part AI generated.
+To build up my ML skills, I chose to train a simple classification model on detecting AI vs human text across multiple genres of writing and multiple families of LLM. To get started quickly, I checked Hugging Face for simple 'AI vs. Human' text datasets. Initially wary of a lack of dataset cards and READMEs, I decided to quickly go ahead with a large dataset with multiple different types of LLM content: [`ahmadreza13/human-vs-Ai-generated-dataset`](https://huggingface.co/datasets/ahmadreza13/human-vs-Ai-generated-dataset). I immediately noticed that (i) the data was imbalanced, with ~58% human written and 42% AI-written text (with further heavy weighting toward GPT4, and less toward e.g. Claude Opus 3 or Gemini 1.5 Pro), and (ii) the entirety of the human-written content was from Wikipedia, as this will have obvious stylistic differences from both AI-written and other human-written text. Furthermore, with no detailed data sourcing, there was no guarantee the Wikipedia content was not in part AI generated.
 
 After tokenising with [`distilbert/distilbert-base-uncased`](https://huggingface.co/distilbert/distilbert-base-uncased), I chose to explore some properties of the dataset. Wikipedia articles are obviously much longer in length than other genres of writing like restaurant reviews, and the AI-written content seemed to span things like code, explanations, and letters, so this seemed like a sensible place to start. Indeed, whilst 0.01% of human-written content exceeded the max length of the model, the AI written content ranged from 2.62-58.95%, depending on the source LLM. 
 
@@ -34,7 +34,7 @@ Indeed, after training the model, evaluating on the same CNN-Llama dataset, I ac
 
 As such, I chose to refine the probability threshold $p_{\text{AI}}$ to achieve an FPR of ≤ 1% on the validation set of the data; this is relatively low, whilst maintaining a TPR of 77.28%. That said, in a case of wide deployment, 1% is nothing to scoff at. Ideally, I'd like to achieve sub 0.01%, but this comes at too high of a cost of reducing the TPR to near uselessness with the current performance of the classifier.
 
-Testing the same threshold on the CNN-Llama dataset, I see an accuracy of 99.05%, FPR of 1.10%, and FNR of 0.80%. The model is able to discriminate well between AI and human-written content (the ability to separate the classes at all), but the strong accuracy boost with the shift in threshold points to a calibration mismatch - there are still many human-written samples with a high $p_\text{AI}$, such that these probabilities can't be evaluated as literall "% chance AI", and are arbitrary scores, with a threshold set where classes separate more clearly. This is best demonstrated in the figure below, showing the $p_\text{AI}$ score for samples, split by whether they were actually human-written (in red) or AI-written (in blue).
+Testing the same threshold on the CNN-Llama dataset, I see an accuracy of 99.05%, FPR of 1.10%, and FNR of 0.80%. The model is able to discriminate well between AI and human-written content (the ability to separate the classes at all), but the strong accuracy boost with the shift in threshold points to a calibration mismatch - there are still many human-written samples with a high $p_\text{AI}$, such that these probabilities can't be evaluated as literal "% chance AI", and are arbitrary scores, with a threshold set where classes separate more clearly. This is best demonstrated in the figure below, showing the $p_\text{AI}$ score for samples, split by whether they were actually human-written (in red) or AI-written (in blue).
 
 ![figure1](https://github.com/lucykappai/margnap/blob/main/plots/cnn_scores_ai.png?raw=true)
 
@@ -44,9 +44,9 @@ Performance is (expectedly) worse on the adversarial characters and paraphrasing
 
 ![figure2](https://github.com/lucykappai/margnap/blob/main/plots/ood_domain_scores_ai.png?raw=true)
 
-The worst performance comes in the case of the out-of-domain language dataset, where accuracy falls to a measly 59.10%.69%. Here, the FPR is a flat 0.00%, and the FNR reaches a poor 81.80% -- the model is coming to the conclusion that any non-English text is by default human generated, an obvious gap in the training data. This prompts an opportunity for better tuning using a more linguistically diverse training set.
+The worst performance comes in the case of the out-of-domain language dataset, where accuracy falls to a measly 59.10%. Here, the FPR is a flat 0.00%, and the FNR reaches a poor 81.80% -- the model is coming to the conclusion that any non-English text is by default human generated, an obvious gap in the training data. This prompts an opportunity for better tuning using a more linguistically diverse training set.
 
-I suspect some part of this worse performance on other languages may also stem from the tokenizer/base model, distilbert-base-uncased, being trained on English wikipedia and BookCorpus, leading to a heavy biasing towards the English language. Furthermore, using an uncased tokenizer may be leaving out some information which the detector could utilise in detections -- it's not hard to see how humans may make more or different mistakes in casing than LLMs. I intend to explore these as avenues to improve performance, along with looking for more, otherwise labelled data. I also intend to investigate whether the CNN dataset may have some overlap with the `acmc` human-AI dataset, as this would hamper its use in evaluation.
+I suspect some part of this worse performance on other languages may also stem from the tokenizer/base model, distilbert-base-uncased, being trained on English wikipedia and BookCorpus, leading to a heavy biasing towards the English language. Furthermore, using an uncased tokenizer may be leaving out some information which the detector could utilise in detections -- it's not hard to see how humans may make more or different mistakes in casing than LLMs. I intend to explore these as avenues to improve performance, along with looking for more, otherwise labelled data. I also intend to investigate whether the CNN dataset may have some overlap with the `acmc` human-AI dataset, as this would imply a mixed signal of the two when evaluating their testing scores.
 
 ## Reproduction
 
